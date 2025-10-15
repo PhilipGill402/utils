@@ -75,7 +75,24 @@ int stack_size(value_stack_t* stack){
 void stack_print(value_stack_t* stack){
     printf("[");
     for (int i = 0; i < stack->size; i++){
-        printf("%d", stack->stack[i]);
+        switch (stack->stack[i].type){
+            case VAL_INT:
+                printf("%d", stack->stack[i].val.i);
+                break;
+            case VAL_CHAR:
+                printf("%c", stack->stack[i].val.c);
+                break;
+            case VAL_DOUBLE:
+                printf("%f", stack->stack[i].val.d);
+                break;
+            case VAL_FLOAT:
+                printf("%f", stack->stack[i].val.f);
+                break;
+            default:
+                printf("Not Known Type");
+                break;
+        }
+
         
         if (i != stack->size - 1){
             printf(", ");
@@ -90,8 +107,4 @@ void stack_release(value_stack_t* stack){
     stack->stack = NULL;
     free(stack);
     stack = NULL;
-}
-
-int main(){
-
 }
