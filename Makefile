@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude
 
-SRC = src/stack.c
+SRC = src/vector.c
 OBJ = $(SRC:.c=.o)
 TARGET = test
 
