@@ -1,17 +1,18 @@
-#include "vector.h"
+#include "queue.h"
 
 int main() {
-    vector_t* vec = create_vector();
+    queue_t* queue = queue_init(); 
 
     for (int i = 0; i < 30; i++){
         value_t val = {.type = VAL_INT, .val.i = i};
-        push_back(vec, val);
+        enqueue(queue, val);
     }
     
+    for (int i = 0; i < 10; i++){
+        dequeue(queue);
+    }
+    print_queue(queue);
     value_t val = {.type = VAL_CHAR, .val.c = 'A'};
-    push_back(vec, val);
-
-    print_vector(vec);
 
 
     return 0;
