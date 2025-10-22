@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude
 
-SRC = src/queue.c
+SRC = src/bst.c
 OBJ = $(SRC:.c=.o)
 TARGET = test
 

@@ -67,6 +67,11 @@ value_t* dequeue(queue_t* queue){
     value_t* val = &queue->array[queue->head];
     queue->size--;
     queue->head = (queue-> head + 1) % queue->capacity;
+    
+    //resizing if we get below 25% capacity
+    if (queue->size < queue->capacity / 4){
+        resize_queue(queue, queue->capacity / 4);
+    }
 
     return val;
 }
