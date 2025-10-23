@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 
 typedef enum {
     VAL_INT,
@@ -16,3 +17,5 @@ typedef struct value_t{
         float f;
     } val;
 } value_t;
+
+void print_value(value_t val);

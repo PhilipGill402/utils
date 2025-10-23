@@ -26,7 +26,7 @@ vector_iterator_t* iterator(vector_t* vec){
     return create_iterator(vec); 
 }
 
-void reserve(vector_t* vec, int new_capacity){
+void vector_reserve(vector_t* vec, int new_capacity){
     value_t* ptr = realloc(vec->array, sizeof(value_t) * new_capacity);
 
     if (ptr == NULL){
@@ -39,32 +39,32 @@ void reserve(vector_t* vec, int new_capacity){
     
 }
 
-int size(vector_t* vec){
+int vector_size(vector_t* vec){
     return vec->size;
 }
 
 void push_back(vector_t* vec, value_t element){
     // if the array is full then double its capacity  
-    if (size(vec) == vec->capacity){
+    if (vector_size(vec) == vec->capacity){
         reserve(vec, vec->capacity * 2);
     } 
 
-    vec->array[size(vec)] = element;
+    vec->array[vector_size(vec)] = element;
     vec->size++;
 
 }
 
 value_t* pop_back(vector_t* vec){
-    if (size(vec) == 0){
+    if (vector_size(vec) == 0){
         fprintf(stderr, "pop_back() called on empty vector\n");
         return 0;
     } 
 
-    value_t* element = &vec->array[size(vec)-1];
+    value_t* element = &vec->array[vector_size(vec)-1];
     vec->size--;
     
     //if the size of the vector drops to 25% of its capacity then halve its capacity
-    if (size(vec) * 4 <= vec->capacity){
+    if (vector_size(vec) * 4 <= vec->capacity){
         reserve(vec, (int)(vec->capacity / 2));
     }
 
@@ -75,7 +75,7 @@ value_t* pop_back(vector_t* vec){
 //TODO: rewrite
 void print_vector(vector_t* vec){
     printf("<");
-    for (int i = 0; i < size(vec) - 1; i++){
+    for (int i = 0; i < vector_size(vec) - 1; i++){
         value_t element = vec->array[i];
 
         switch(element.type){
@@ -98,7 +98,7 @@ void print_vector(vector_t* vec){
 
     }
     if (!empty(vec)){
-        value_t element = vec->array[size(vec) - 1];
+        value_t element = vec->array[vector_size(vec) - 1];
         switch(element.type){
             case VAL_INT:
                 printf("%d", element.val.i);
@@ -134,11 +134,11 @@ bool empty(vector_t* vec){
         return true;
     }
     
-    return size(vec) == 0;
+    return vector_size(vec) == 0;
 }
 
 value_t* get(vector_t* vec, int index){
-    if (index > size(vec)){
+    if (index > vector_size(vec)){
         fprintf(stderr, "'index' is out of the range of the vector");
         return NULL;
     }
@@ -160,17 +160,17 @@ value_t* back(vector_t* vec){
         return NULL;
     }
 
-    return &vec->array[size(vec) - 1];
+    return &vec->array[vector_size(vec) - 1];
 }
 
 void insert(vector_t* vec, value_t element, int index){
     //if the vector is full then reserve double its capacity
-    if (size(vec) + 1 > vec->capacity){
+    if (vector_size(vec) + 1 > vec->capacity){
         reserve(vec, vec->capacity * 2);
     }
 
     //shift everything over one
-    for (int i = size(vec) + 1; i >= index; i--){
+    for (int i = vector_size(vec) + 1; i >= index; i--){
         vec->array[i] = vec->array[i - 1]; 
     }
     
@@ -181,23 +181,23 @@ void insert(vector_t* vec, value_t element, int index){
 }
 
 void erase(vector_t* vec, int index){
-    if (index >= size(vec)){
+    if (index >= vector_size(vec)){
         fprintf(stderr, "index given is outside the bounds of the vector\n");
         return;
     }
     
     //we're removing the last element
-    if (index == size(vec) - 1){
+    if (index == vector_size(vec) - 1){
         vec->size--;
     } else {
-        for (int i = index; i < size(vec) - 1; i++){
+        for (int i = index; i < vector_size(vec) - 1; i++){
             vec->array[i] = vec->array[i + 1];
         }
 
         vec->size--;
     }
     
-    if (size(vec) * 4 <= vec->capacity){
+    if (vector_size(vec) * 4 <= vec->capacity){
         reserve(vec, (int)(vec->capacity / 2));
     }
 
@@ -234,7 +234,7 @@ void assign(vector_t* vec, value_t element, int num_copies){
 
     vec->size = num_copies;
 
-    for (int i = 0; i < size(vec); i++){
+    for (int i = 0; i < vector_size(vec); i++){
         vec->array[i] = element;
     }
 }
@@ -244,20 +244,20 @@ int capacity(vector_t* vec){
 }
 
 void downsize(vector_t* vec, int new_size){
-    if (new_size > size(vec)){
+    if (new_size > vector_size(vec)){
         fprintf(stderr, "given size is larger than size of the vector\n");
         return;
     } 
      
     vec->size = new_size;
 
-    if (size(vec) > capacity(vec)){
-        reserve(vec, 2 * size(vec));
+    if (vector_size(vec) > capacity(vec)){
+        reserve(vec, 2 * vector_size(vec));
     }
 }
 
 void upsize(vector_t* vec, int new_size, value_t element){
-    if (new_size < size(vec)){
+    if (new_size < vector_size(vec)){
         fprintf(stderr, "given size is smaller than size of the vector\n");
         return;
     } 
@@ -265,8 +265,8 @@ void upsize(vector_t* vec, int new_size, value_t element){
     int old_size = vec->size; 
     vec->size = new_size;
 
-    if (size(vec) > capacity(vec)){
-        reserve(vec, 2 * size(vec));
+    if (vector_size(vec) > capacity(vec)){
+        reserve(vec, 2 * vector_size(vec));
     }
 
     for (int i = old_size; i < new_size; i++){
@@ -287,7 +287,7 @@ value_t* data(vector_t* vec){
 vector_iterator_t* create_iterator(vector_t* vec){
     vector_iterator_t* itr = malloc(sizeof(*itr));
     itr->current = vec->array;
-    itr->end = vec->array + size(vec);
+    itr->end = vec->array + vector_size(vec);
     return itr;
 }
 
@@ -309,7 +309,7 @@ value_t* next(vector_iterator_t* itr){
 }
 
 void resize(vector_t* vec, int new_size){
-    if (size(vec) > capacity(vec)){
+    if (vector_size(vec) > capacity(vec)){
         reserve(vec, 2 * new_size);
     } 
     

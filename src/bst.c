@@ -73,6 +73,15 @@ int bst_add(bst_t* bst, value_t element){
 
 
 int bst_remove(bst_t* bst, value_t element);
-void print_inorder(bst_t* bst, node_t* node);
+void print_inorder(bst_t* bst, node_t* node){
+    if (node == NULL){
+        return;
+    }
+
+    print_inorder(bst, node->left);
+    print_value(node->element);
+    printf(", ");
+    print_inorder(bst, node->right);
+}
 void print_postorder(bst_t* bst, node_t* node);
 void print_preorder(bst_t* bst, node_t* node);

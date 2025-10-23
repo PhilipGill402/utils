@@ -24,8 +24,8 @@ void destroy_vector(vector_t* vec);
 //managing size
 void reserve(vector_t* vec, int new_capacity);
 void resize(vector_t* vec, int new_capacity);
-int size(vector_t* vec);
-int capacity(vector_t* vec);
+int vector_size(vector_t* vec);
+int vector_capacity(vector_t* vec);
 void downsize(vector_t* vec, int new_size);
 void upsize(vector_t* vec, int new_size, value_t element);
 void shrink_to_fit(vector_t* vec);

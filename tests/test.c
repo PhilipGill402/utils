@@ -13,3 +13,6 @@ int main() {
         value_t val = {.type=VAL_INT, .val.i=i};
         bst_add(bst, val);
     }
+
+    print_inorder(bst, bst->root);
+}
