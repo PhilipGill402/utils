@@ -26,14 +26,32 @@ bst_t* bst_init(value_t* element, int (*comparator)(value_t, value_t)){
     return bst;
 }
 
+void node_release_helper(node_t* node){
+    if (node == NULL){
+        return;
+    } 
 
-int height(bst_t* bst, node_t* node){
+    node_release_helper(node->left);
+    node_release_helper(node->right);
+    free(node);
+    node = NULL;
+}
+
+void bst_release(bst_t* bst){
+    //free all nodes
+    node_release_helper(bst->root);
+    free(bst);
+    
+    bst = NULL;
+}
+
+int bst_height(bst_t* bst, node_t* node){
     if (node == NULL){
         return 0; 
     }
     
-    int left_height = height(bst, node->left);
-    int right_height = height(bst, node->right);
+    int left_height = bst_height(bst, node->left);
+    int right_height = bst_height(bst, node->right);
 
     return (right_height > left_height ? right_height : left_height) + 1;
 }
@@ -101,8 +119,12 @@ int bst_remove(bst_t* bst, value_t element){
         if (bst->root == current){
             bst->root = NULL;
         }
-
-        //don't worry about deleting the node, we do this at the bottom, no cleanup involved
+        
+        if (prev->left == current){
+            prev->left = NULL;
+        } else {
+            prev->right = NULL;
+        }
     }
 
     //case 2 - node has one child
@@ -140,7 +162,7 @@ int bst_remove(bst_t* bst, value_t element){
 
         current->element = replacement->element;
         
-        node_t* replacement_child = replacement_parent->right;
+        node_t* replacement_child = replacement->right;
         if (replacement_parent->left == replacement){
             replacement_parent->left = replacement_child;
         } else {
@@ -161,6 +183,118 @@ int bst_remove(bst_t* bst, value_t element){
     return 1;
 }
 
+node_t* bst_find(bst_t* bst, value_t element){
+    node_t* current = bst->root;
+
+    while (current != NULL && bst->comparator(current->element, element) != 0){
+        if (bst->comparator(current->element, element) > 0){
+            current = current->left;
+        } else {
+            current = current->right;
+        }
+    }
+
+    return current; 
+
+}
+
+int bst_contains(bst_t* bst, value_t element){
+    return bst_find(bst, element) != NULL;
+}
+
+node_t* bst_min(bst_t* bst){
+    node_t* current = bst->root;
+
+    while (current->left != NULL){
+        current = current->left;
+    }
+
+    return current;
+}
+
+node_t* bst_max(bst_t* bst){
+    node_t* current = bst->root;
+
+    while (current->right != NULL){
+        current = current->right;
+    }
+
+    return current;
+}
+
+int bst_count(bst_t* bst, node_t* node){
+    if (node == NULL){
+        return 0; 
+    }
+    
+    int left_count = bst_count(bst, node->left);
+    int right_count = bst_count(bst, node->right);
+
+    return right_count + left_count + 1;
+}
+
+void bst_map_helper(node_t* node, void (*func)(value_t*)){
+    if (node == NULL){
+        return;
+    } 
+    
+    func(&node->element); 
+    bst_map_helper(node->left, func);
+    bst_map_helper(node->right, func);
+
+}
+
+void bst_map(bst_t* bst, void (*func)(value_t*)){
+    node_t* node = bst->root;
+    bst_map_helper(node, func);
+}
+
+int bst_compare_helper(node_t* node_a, node_t* node_b, int (*comparator)(value_t, value_t)){
+    if (node_a == NULL && node_b == NULL){
+        return 1;
+    }
+
+    if (node_a == NULL ^ node_b == NULL){
+        return 0;
+    }
+
+    if (comparator(node_a->element, node_b->element) != 0){
+        return 0;
+    }
+
+    if (bst_compare_helper(node_a->left, node_b->left, comparator) == 0){
+        return 0;
+    }
+
+    if (bst_compare_helper(node_a->right, node_b->right, comparator)){
+        return 0;
+    }
+
+    return 1;
+}
+
+int bst_compare(bst_t* bst_a, bst_t* bst_b, int (*comparator)(value_t, value_t)){
+    //if no comparator is given, then a comparator from one of the bsts 
+    if (comparator == NULL){
+        if (bst_a->comparator != NULL){
+            comparator = bst_a->comparator;
+        } else if (bst_b->comparator != NULL){
+            comparator = bst_b->comparator;
+        } else {
+            //no comparator was found
+            return -1;
+        }
+    }
+    
+    if (bst_compare_helper(bst_a->root, bst_b->root, comparator) == 0){
+        return 0;
+    }
+
+    return 1;
+
+    
+}
+
 void print_inorder_helper(node_t* node, int* first){
     if (node == NULL){
         return;
@@ -177,10 +311,10 @@ void print_inorder_helper(node_t* node, int* first){
     print_inorder_helper(node->right, first);
 }
 
-void print_inorder(node_t* node){
+void print_inorder(bst_t* bst){
     printf("[");
     int first = 1;
-    print_inorder_helper(node, &first);
+    print_inorder_helper(bst->root, &first);
     printf("]\n");    
 }
 
@@ -201,10 +335,10 @@ void print_postorder_helper(node_t* node, int* first){
     *first = 0;
 }
 
-void print_postorder(node_t* node){
+void print_postorder(bst_t* bst){
     printf("[");
     int first = 1;
-    print_postorder_helper(node, &first);
+    print_postorder_helper(bst->root, &first);
     printf("]\n");
 }
 
@@ -227,12 +361,9 @@ void print_preorder_helper(node_t* node, int* first){
     
 }
 
-void print_preorder(node_t* node){
+void print_preorder(bst_t* bst){
     printf("[");
     int first = 1;
-    print_preorder_helper(node, &first);
+    print_preorder_helper(bst->root, &first);
     printf("]\n");
 }
-
-
-
