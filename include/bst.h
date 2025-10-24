@@ -34,7 +34,7 @@ int bst_height(bst_t* bst, node_t* node);
 int bst_count(bst_t* bst, node_t* node);
 void bst_map(bst_t* bst, void (*func)(value_t*));
 int bst_compare(bst_t* bst_a, bst_t* bst_b, int (*comparator)(value_t, value_t));
-
+bst_t* bst_copy(bst_t* bst);
 
 //printing
 void print_inorder(bst_t* bst);

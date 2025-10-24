@@ -40,9 +40,6 @@ int main() {
     bst_remove(tree_b, make_int(4));
 
     print_inorder(tree_a);
-    print_inorder(tree_b);
-
-    printf("%d\n", bst_compare(tree_a, tree_b, comp_ptr));
      
     return 0; 
 }

@@ -95,18 +95,18 @@ int bst_remove(bst_t* bst, value_t element){
     node_t* prev = NULL;
 
     while (current != NULL && bst->comparator(current->element, element) != 0){
-        prev = current; 
-
+        prev = current;
+        
         //current node is greater than our element
         if (bst->comparator(current->element, element) > 0){ 
+             
             current = current->left;
-        }
-        
-        //current node is less than our element
-        if (bst->comparator(current->element, element) < 0){
+        } else if (bst->comparator(current->element, element) < 0){
+            //current node is less than our element 
             current = current->right;
         }
     }
+    
 
     //the value is not in the tree 
     if (current == NULL){
@@ -293,6 +293,51 @@ int bst_compare(bst_t* bst_a, bst_t* bst_b, int (*comparator)(value_t, value_t))
     return 1;
 
     
+}
+
+node_t** bst_level_order(bst_t* bst){
+    node_t** queue = malloc(sizeof(node_t*) * bst_count(bst, bst->root));
+    node_t** result = malloc(sizeof(node_t*) * bst_count(bst, bst->root));
+    int queue_size = 0;
+    int queue_head = 0;
+    int result_size = 0;
+
+    if (queue == NULL || result == NULL || bst->root == NULL){
+        return NULL;
+    }
+
+    queue[queue_size] = bst->root;
+    queue_size++;
+
+    while (queue_size >= 0){
+        result[result_size] = queue[queue_head];
+        
+        if (queue[queue_head]->left != NULL){
+            node_t* left_child = queue[queue_head]->left;
+            queue[queue_size] = left_child;
+            queue_size++;
+        }
+        
+        if (queue[queue_head]->right != NULL){
+            node_t* right_child = queue[queue_head]->right;
+            queue[queue_size] = right_child;
+            queue_size++;
+        }
+
+        queue_head++;
+        result_size++;
+    }
+
+    return result; 
+}
+
+bst_t* bst_copy(bst_t* bst){
+    bst_t* new_bst = bst_init(NULL, bst->comparator);
+    new_bst->root = bst->root;
+    
+    
+
+    return new_bst;
 }
 
 void print_inorder_helper(node_t* node, int* first){
