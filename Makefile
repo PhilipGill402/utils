@@ -2,6 +2,9 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -Iinclude
 
+# remove this when adding support for pow
+LDFLAGS = -lm
+
 # Directories
 SRC_DIR = src
 TEST_DIR = tests
@@ -21,8 +24,9 @@ OBJ_FILES += $(OBJ_DIR)/test.o
 all: $(TARGET)
 
 # Link all object files into final program
+# TODO: remove LDFLAGS when pow is implemented
 $(TARGET): $(OBJ_FILES)
-	$(CC) $(CFLAGS) -o $@ $(OBJ_FILES)
+	$(CC) $(CFLAGS) -o $@ $(OBJ_FILES) $(LDFLAGS)
 
 # Compile src/*.c
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
