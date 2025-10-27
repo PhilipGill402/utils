@@ -15,4 +15,6 @@ double r_sin(double x);
 double d_sin(double x);
 double r_cos(double x);
 double d_cos(double x);
+int i_pow(int x, int y);
+double f_pow(double x, double y);
 int factorial(int x);

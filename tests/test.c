@@ -1,10 +1,8 @@
 #include "math_utils.h"
 
 int main(){
-    double sin = d_sin(90);
-    double cos = d_cos(90);
-    printf("%f\n", sin);
-    printf("%f\n", cos);
+    int x = i_pow(3, 3); 
+    printf("%d\n", x);
 
     return 0;
 }
