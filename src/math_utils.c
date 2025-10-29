@@ -10,8 +10,6 @@ double r_sin(double x){
         quadrant += 2;
     }
     
-    printf("Sin Angle: %f\n", x);   
-    
     quadrant %= 4;
 
     
@@ -47,8 +45,6 @@ double r_cos(double x){
         quadrant += 2;
     }
     
-    printf("Cos Angle: %f\n", x);
-
     quadrant %= 4;
 
 
@@ -103,4 +99,104 @@ int factorial(int x){
     }
 
     return result;
+}
+
+int i_clamp(int x, int min, int max){
+    if (x < min){
+        x = min;
+    } else if (x > max){
+        x = max;
+    }
+
+    return x;
+}
+
+double d_clamp(double x, double min, double max){
+    if (x < min){
+        x = min;
+    } else if (x > max){
+        x = max;
+    }
+
+    return x;
+}
+
+int i_max(int a, int b){
+    return a > b ? a : b;
+}
+
+double d_max(double a, double b){
+    return a > b ? a : b;
+}
+
+int i_min(int a, int b){
+    return a < b ? a : b;
+}
+
+double d_min(double a, double b){
+    return a < b ? a : b;
+}
+
+double mean(double* arr, size_t len){
+    double total = 0;
+
+    for (int i = 0; i < len; i++){
+        total += arr[i];
+    }
+
+    return total / len;
+}
+
+double stddev(double* arr, size_t len){
+    double arr_mean = mean(arr, len);
+    double sqr_dst = 0; 
+
+    for (int i = 0; i < len; i++){
+        sqr_dst += (arr[i] - arr_mean) * (arr[i] - arr_mean);
+    }
+
+    return mu_sqrt(sqr_dst / len, -1);
+}
+
+int i_abs(int x){
+    if (x < 0){
+        return x *= -1;
+    }
+
+    return x;
+}
+
+double d_abs(double x){
+    if (x < 0){
+        return x *= -1;
+    }
+
+    return x;
+}
+
+double mu_sqrt(double x, double epsilon){
+    double next_guess;
+    double prev_guess;
+    
+    if (epsilon == -1){
+        epsilon = 1e-12;
+    }
+
+    if (x >= 1){
+        prev_guess = x / 2.0;
+    } else if (x > 0 && x < 1){
+        prev_guess = 1.0;
+    } else if (x == 0){
+        return 0;
+    } else {
+        //can't find square root of a negative number
+        return -1;
+    }
+    
+    do{
+        next_guess = prev_guess - (.5 * (prev_guess - (x / prev_guess)));
+        prev_guess = next_guess;
+    } while (d_abs((next_guess*next_guess) - x) > epsilon);
+
+    return next_guess;
 }
