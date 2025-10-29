@@ -200,3 +200,10 @@ double mu_sqrt(double x, double epsilon){
 
     return next_guess;
 }
+
+double differentiate(double (*f)(double), double x){
+}
+
+
+
+

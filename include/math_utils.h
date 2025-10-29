@@ -1,6 +1,7 @@
 #pragma once
 #include <math.h>
 #include <stdio.h>
+#include "dual.h"
 
 #define PRECISION 10
 
@@ -29,3 +30,4 @@ double stddev(double* arr, size_t len);
 double mu_sqrt(double x, double epsilon);
 int i_abs(int x);
 double d_abs(double x);
+double differentiate(double (*f)(double), double x);
