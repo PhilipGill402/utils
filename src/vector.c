@@ -1,23 +1,22 @@
 #include "vector.h"
 
-vector_t* create_vector(){
+vector_t create_vector(){
     //start with 10 elements
-    vector_t* vec = malloc(sizeof(*vec));
-    if (!vec){
-        fprintf(stderr, "Failed to allocat memory for the vector\n");
-        return NULL;
-    }
+    vector_t vec;
     
-    vec->array = malloc(10 * sizeof(value_t));
+    vec.array = malloc(10 * sizeof(value_t));
 
-    if (!vec->array){
+    if (!vec.array){
         fprintf(stderr, "Failed to allocate memory for the array\n");
-        free(vec);
-        return NULL;
+        vec.size = 0;
+        vec.capacity = 0;
+        
+        //returns zeroed out array in case of error
+        return vec;
     }
 
-    vec->size = 0;
-    vec->capacity = 10;
+    vec.size = 0;
+    vec.capacity = 10;
 
     return vec;
 }
@@ -39,7 +38,7 @@ void vector_reserve(vector_t* vec, int new_capacity){
     
 }
 
-int vector_size(vector_t* vec){
+int vector_size(const vector_t* vec){
     return vec->size;
 }
 
@@ -73,7 +72,7 @@ value_t* pop_back(vector_t* vec){
 }
 
 //TODO: rewrite
-void print_vector(vector_t* vec){
+void print_vector(const vector_t* vec){
     printf("<");
     for (int i = 0; i < vector_size(vec) - 1; i++){
         value_t element = vec->array[i];
@@ -128,7 +127,7 @@ void destroy_vector(vector_t* vec){
     vec->capacity = 0;
 }
 
-bool empty(vector_t* vec){
+bool empty(const vector_t* vec){
     if (vec == NULL) {
         fprintf(stderr, "empty() called on NULL vector\n");
         return true;
@@ -137,7 +136,7 @@ bool empty(vector_t* vec){
     return vector_size(vec) == 0;
 }
 
-value_t* get(vector_t* vec, int index){
+value_t* get(const vector_t* vec, int index){
     if (index > vector_size(vec)){
         fprintf(stderr, "'index' is out of the range of the vector");
         return NULL;
@@ -145,7 +144,7 @@ value_t* get(vector_t* vec, int index){
     return &vec->array[index];
 }
 
-value_t* front(vector_t* vec){
+value_t* front(const vector_t* vec){
     if (empty(vec)){
         fprintf(stderr, "cannot get first element of empty vector\n");
         return NULL;
@@ -154,7 +153,7 @@ value_t* front(vector_t* vec){
     return &vec->array[0];
 }
 
-value_t* back(vector_t* vec){
+value_t* back(const vector_t* vec){
     if (empty(vec)){
         fprintf(stderr, "cannot get last element of empty vector\n");
         return NULL;
@@ -239,7 +238,7 @@ void assign(vector_t* vec, value_t element, int num_copies){
     }
 }
 
-int capacity(vector_t* vec){
+int capacity(const vector_t* vec){
     return vec->capacity;
 }
 
@@ -278,20 +277,20 @@ void shrink_to_fit(vector_t* vec){
     vec->capacity = vec->size;
 }
 
-value_t* data(vector_t* vec){
+value_t* data(const vector_t* vec){
     return vec->array;
 }
 
 
 
-vector_iterator_t* create_iterator(vector_t* vec){
+vector_iterator_t* create_iterator(const vector_t* vec){
     vector_iterator_t* itr = malloc(sizeof(*itr));
     itr->current = vec->array;
     itr->end = vec->array + vector_size(vec);
     return itr;
 }
 
-int has_next(vector_iterator_t* itr){
+int has_next(const vector_iterator_t* itr){
     return itr->current != itr->end;
 }
 
