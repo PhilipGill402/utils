@@ -1,12 +1,12 @@
 #include "queue.h"
 
-queue_t* queue_init(){
-    queue_t* queue = malloc(sizeof(queue_t));
-    queue->size = 0;
-    queue->capacity = 10;
-    queue->head = 0;
-    queue->rear = 0;
-    queue->array = malloc(sizeof(value_t) * 10);
+queue_t queue_init(){
+    queue_t queue;
+    queue.size = 0;
+    queue.capacity = 10;
+    queue.head = 0;
+    queue.rear = 0;
+    queue.array = malloc(sizeof(value_t) * 10);
 
     return queue;
 }
@@ -14,8 +14,6 @@ queue_t* queue_init(){
 void queue_release(queue_t* queue){
     free(queue->array);
     queue->array = NULL;
-    free(queue);
-    queue = NULL;
 }
 
 int resize_queue(queue_t* queue, int new_capacity){
@@ -57,7 +55,6 @@ int enqueue(queue_t* queue, value_t val){
     return 0;
 }
 
-//TODO: add resizing
 value_t* dequeue(queue_t* queue){
     if (is_empty(queue)){
         fprintf(stderr, "can't dequeue from empty queue");
@@ -76,41 +73,24 @@ value_t* dequeue(queue_t* queue){
     return val;
 }
 
-value_t* first(queue_t* queue){
+value_t* first(const queue_t* queue){
     return &queue->array[queue->head];
 }
 
-int is_empty(queue_t* queue){
+int is_empty(const queue_t* queue){
     return queue->size == 0;
 }
 
-int queue_size(queue_t* queue){
+int queue_size(const queue_t* queue){
     return queue->size;
 }
 
-void print_queue(queue_t* queue){
+void print_queue(const queue_t* queue){
     printf("[");
     for (int i = 0; i < queue->size; i++){
         int index = (queue->head + i) % queue->capacity;
-
-        switch (queue->array[index].type){
-            case VAL_INT:
-                printf("%d", queue->array[index].val.i);
-                break;
-            case VAL_CHAR:
-                printf("%c", queue->array[index].val.c);
-                break;
-            case VAL_DOUBLE:
-                printf("%f", queue->array[index].val.d);
-                break;
-            case VAL_FLOAT:
-                printf("%f", queue->array[index].val.f);
-                break;
-            default:
-                printf("Not Known Type");
-                break;
-        }
-
+        value_t val = queue->array[index];
+        print_value(val);
         
         if (i != queue->size - 1){
             printf(", ");

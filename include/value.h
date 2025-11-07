@@ -19,3 +19,7 @@ typedef struct value_t{
 } value_t;
 
 void print_value(value_t val);
+value_t make_int(int i);
+value_t make_char(char c);
+value_t make_double(double d);
+value_t make_float(float f);
