@@ -13,7 +13,7 @@ TARGET = test # name of your final executable
 
 # Source files
 SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
-TEST_FILE := $(TEST_DIR)/test.c
+TEST_FILE := $(TEST_DIR)/matrix_test.c
 ALL_SRC := $(SRC_FILES) $(TEST_FILE)
 
 # Object files
