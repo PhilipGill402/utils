@@ -12,6 +12,7 @@ typedef struct matrix_t {
 //initialization and destruction
 matrix_t matrix_init(int rows, int cols);
 void matrix_release(matrix_t* matrix);
+matrix_t matrix_identity(int dim);
 
 //adding and retrieving data
 void matrix_set(matrix_t* matrix, int row, int col, double num);
@@ -22,6 +23,7 @@ matrix_t matrix_add(const matrix_t* matrix_a, const matrix_t* matrix_b);
 matrix_t matrix_sub(const matrix_t* matrix_a, const matrix_t* matrix_b);
 matrix_t matrix_scalar_mul(const matrix_t* matrix, double scalar);
 matrix_t matrix_mul(const matrix_t* matrix_a, const matrix_t* matrix_b);
+matrix_t matrix_determinant(const matrix_t* matrix);
 matrix_t matrix_inverse(const matrix_t* matrix);
 matrix_t matrix_div(const matrix_t* matrix_a, const matrix_t* matrix_b);
 matrix_t matrix_transpose(const matrix_t* matrix);

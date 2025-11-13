@@ -20,6 +20,23 @@ void matrix_release(matrix_t* matrix){
     free(matrix->arr);
 }
 
+matrix_t matrix_identity(int dimension){
+    matrix_t matrix = matrix_init(dimension, dimension);
+    int curr_col = 0; 
+
+    for (int row = 0; row < dimension; row++){
+        for (int col = 0; col < dimension; col++){
+            if (col == curr_col){
+                matrix_set(&matrix, row, col, 1);
+                curr_col++;
+                row++;
+            }
+        }
+    }
+
+    return matrix;
+}
+
 void matrix_set(matrix_t* matrix, int row, int col, double num){
     int index = (row * matrix->cols) + col; 
     matrix->arr[index] = num;
