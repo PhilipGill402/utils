@@ -21,13 +21,10 @@ int main(){
     erase(&vec, 7);
     
     print_vector(&vec);
-    printf("\n");
-    vector_iterator_t* itr = iterator(&vec);
 
-    while(has_next(itr)) {
-        printf("%d\n", *(int*)itr->current);
-        next(itr);
-    }
+    quick_sort(&vec, 0, vector_size(&vec));
+    printf("\n");
+    print_vector(&vec);
 
     return 0;
 }
