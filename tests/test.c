@@ -2,23 +2,32 @@
 #include "vector.h"
 #include <stdlib.h>
 
-int comparator(value_t a, value_t b){
-    return a.val.i - b.val.i;
+void print_vector(vector_t* vec) {
+    for (int i = 0; i < vec->size; i++) {
+        printf("%d, ", *(int*)get(vec, i));
+    }
 }
 
 int main(){
-    vector_t vec = create_vector();
-    value_t val;
+    vector_t vec = create_vector(sizeof(int));
 
     for (int i = 10; i > 0; i--){
-        val.type = VAL_INT;
-        val.val.i = i*10;
-        push_back(&vec, val);
+        int x = i;
+        push_back(&vec, &x);
     }
     
+    int x = 90;
+    insert(&vec, &x, 5);
+    erase(&vec, 7);
+    
     print_vector(&vec);
-    quick_sort(&vec, 0, vector_size(&vec) - 1, comparator);
-    print_vector(&vec);
+    printf("\n");
+    vector_iterator_t* itr = iterator(&vec);
+
+    while(has_next(itr)) {
+        printf("%d\n", *(int*)itr->current);
+        next(itr);
+    }
 
     return 0;
 }
