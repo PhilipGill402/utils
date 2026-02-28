@@ -1,18 +1,11 @@
-#include "stack.h"
+#include "string_t.h"
 #include <stdlib.h>
 
 
 int main(){
-    stack_s stack = create_stack(sizeof(int));
+    string_t str = string_literal("hello world");
 
-    for (int i = 10; i > 0; i--){
-        int x = i;
-        stack_push(&stack, &x);
-    }
-
-    for (int i = 0; i < 10; i++) {
-        printf("%d\n", *(int*)stack_pop(&stack));
-    }
+    printstr(&str, 0);
 
     return 0;
 }
