@@ -1,17 +1,17 @@
-#include "queue.h"
+#include "stack.h"
 #include <stdlib.h>
 
 
 int main(){
-    queue_t queue = create_queue(sizeof(int));
+    stack_s stack = create_stack(sizeof(int));
 
     for (int i = 10; i > 0; i--){
         int x = i;
-        enqueue(&queue, &x);
+        stack_push(&stack, &x);
     }
 
     for (int i = 0; i < 10; i++) {
-        printf("%d\n", *(int*)dequeue(&queue));
+        printf("%d\n", *(int*)stack_pop(&stack));
     }
 
     return 0;
