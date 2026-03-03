@@ -5,7 +5,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "arena.h"
+
+typedef struct arena_t arena_t;
+void* reserve(size_t size, arena_t* arena);
+void release(void* ptr, arena_t* arena);
 
 typedef struct vector_t{
     arena_t* allocator;

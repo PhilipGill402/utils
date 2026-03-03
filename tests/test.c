@@ -1,5 +1,5 @@
 #include "vector.h"
-#include "arena.h"
+#include "main.h"
 #include <stdlib.h>
 
 void print_vec(vector_t* vec) {
@@ -24,3 +24,5 @@ int main(){
     release_arena(&arena);
     return 0;
 }
+
+
