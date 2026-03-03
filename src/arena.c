@@ -37,22 +37,22 @@ void coalesce(block_t* block, arena_t* arena){
 }
 
 /* Main Functions */
-arena_t* create_arena(size_t size){
-    arena_t* arena = malloc(sizeof(arena_t));
+arena_t create_arena(size_t size){
+    arena_t arena;
     size_t aligned_size = align(size, PAGE_SIZE); 
 
     void* mem_ptr = mmap(NULL, aligned_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); 
     if (mem_ptr == MAP_FAILED){
         perror("mmap");
-        return NULL;
+        return arena;
     }
 
-    arena->ptr = (uint8_t*)mem_ptr;
-    arena->size = aligned_size;
-    arena->end = arena->ptr + arena->size; 
+    arena.ptr = (uint8_t*)mem_ptr;
+    arena.size = aligned_size;
+    arena.end = arena.ptr + arena.size; 
 
-    block_t* block = (block_t*)arena->ptr;
-    block->size = arena->size;
+    block_t* block = (block_t*)arena.ptr;
+    block->size = arena.size;
     block->allocated = false;
     return arena;
 }
@@ -69,8 +69,9 @@ void release_arena(arena_t* arena){
         abort();
     }
 
-    free(arena);
-    arena = NULL;
+    arena->ptr = NULL;
+    arena->size = 0;
+    arena->end = NULL;
 }
 
 void* reserve(size_t size, arena_t* arena){
