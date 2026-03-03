@@ -87,6 +87,13 @@ int string_compare(string_t* a, string_t* b) {
     return 0;
 }
 
+void free_string(string_t* str) {
+    free(str->str);
+    str->str = NULL;
+    str->len = 0;
+    str->capacity = 0;
+}
+
 void printstr(const string_t* str, int end) {
     for (int i = 0; i < str->len; i++) {
         putchar(str->str[i]);
