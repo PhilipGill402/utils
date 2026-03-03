@@ -12,7 +12,6 @@ void release(void* ptr, arena_t* arena);
 
 typedef struct vector_t{
     arena_t* allocator;
-    int using_allocator;
     void* array; 
     int size;
     int capacity;
@@ -26,11 +25,8 @@ typedef struct vector_iterator_t{
 } vector_iterator_t;
 
 //initializing and destroying
-vector_t create_vector(size_t element_size);
-vector_t create_vector_arena(size_t element_size, arena_t* allocator);
+vector_t create_vector(size_t element_size, arena_t* allocator);
 void free_vector(vector_t* vec);
-
-
 
 //managing size
 void vector_reserve(vector_t* vec, int new_capacity);
@@ -57,8 +53,8 @@ void assign(vector_t* vec, void* element, int num_copies);
 void* data(const vector_t* vec);
 
 //iterators
-vector_iterator_t* iterator(vector_t* vec);
-vector_iterator_t* create_iterator(const vector_t* vec);
+vector_iterator_t* iterator(vector_t* vec, arena_t* allocator);
+vector_iterator_t* create_iterator(const vector_t* vec, arena_t* allocator);
 int has_next(const vector_iterator_t* itr);
 void* next(vector_iterator_t* itr);
 

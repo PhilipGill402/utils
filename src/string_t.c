@@ -1,44 +1,34 @@
 #include "string_t.h"
 
-string_t create_string() {
-    string_t string;
-    string.str = malloc(sizeof(char) * 10);
-    string.capacity = 10;
-    string.len = 0;
-    string.using_allocator = 0;
-
-    return string;
-}
-
-string_t create_string_arena(arena_t* allocator) {
+string_t create_string(arena_t* allocator) {
     string_t string;
     string.allocator = allocator;
-    string.using_allocator = 1;
-    string.str = reserve(sizeof(char) * 10, allocator);
-    string.len = 0;
+
+    if (string.allocator) {
+        string.str = reserve(sizeof(char) * 10, string.allocator);   
+    } else {
+        string.str = malloc(sizeof(char) * 10);
+    }
+    
     string.capacity = 10;
+    string.len = 0;
 
     return string;
 }
 
-string_t string_literal(const char* str) {
+string_t string_literal(const char* str, arena_t* allocator) {
     string_t string;
+    string.allocator = allocator;
     string.len = strlen(str);
     string.capacity = string.len * 2;
-    string.str = malloc(sizeof(char) * string.capacity); // this needs to be allocated on the heap so that when we release the string we can just call 'free()'
-    strcpy(string.str, str);
 
-    return string;
-}
-
-string_t string_literal_arena(const char* str, arena_t* allocator) {
-    string_t string;
-    string.len = strlen(str);
-    string.capacity = string.len * 2; 
-    string.str = reserve(sizeof(char) * string.capacity, allocator); // this needs to be allocated on the heap so that when we release the string we can just call 'free()'
+    if (string.allocator) {
+        string.str = reserve(sizeof(char) * string.capacity, allocator); // this needs to be allocated on the heap so that when we release the string we can just call 'free()'   
+    } else {
+        string.str = malloc(sizeof(char) * string.capacity); // this needs to be allocated on the heap so that when we release the string we can just call 'free()'
+    }
+    
     strcpy(string.str, str);
-    string.allocator = allocator;
-    string.using_allocator = 1;
 
     return string;
 }
@@ -49,7 +39,7 @@ int string_len(string_t* string) {
 
 void string_copy(string_t* dst, string_t* src) {
     if (src->len > dst->capacity) {
-        if (dst->using_allocator) {
+        if (dst->allocator) {
             char* new_str = reserve(sizeof(char) * 2 * src->len, dst->allocator);
             memcpy(new_str, dst->str, dst->len);
             release(dst->str, dst->allocator);
@@ -75,7 +65,7 @@ void string_copy(string_t* dst, string_t* src) {
 
 void string_append_chr(string_t* string, char ch) {
     if (string->len + 1 > string->capacity) {
-        if (string->using_allocator) {
+        if (string->allocator) {
             char* new_str = reserve(sizeof(char) * 2 * (string->len + 1), string->allocator);
             memcpy(new_str, string->str, string->len);
             release(string->str, string->allocator);
@@ -99,7 +89,7 @@ void string_append_chr(string_t* string, char ch) {
 
 void string_cat(string_t* dst, string_t* src) {
     if (dst->capacity < src->len + dst->len) {
-        if (dst->using_allocator) {
+        if (dst->allocator) {
             char* new_str = reserve(sizeof(char) * 2 * (src->len + dst->len), dst->allocator);
             memcpy(new_str, dst->str, dst->len);
             release(dst->str, dst->allocator);
@@ -135,7 +125,7 @@ int string_compare(string_t* a, string_t* b) {
 }
 
 void free_string(string_t* str) {
-    if (str->using_allocator) {
+    if (str->allocator) {
         release(str->str, str->allocator);
     } else {
         free(str->str);

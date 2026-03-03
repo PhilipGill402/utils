@@ -1,5 +1,6 @@
 #include "vector.h"
-#include "main.h"
+#include "string_t.h"
+#include "arena.h"
 #include <stdlib.h>
 
 void print_vec(vector_t* vec) {
@@ -10,16 +11,8 @@ void print_vec(vector_t* vec) {
 
 int main(){
     arena_t arena = create_arena(PAGE_SIZE);
-    vector_t vec = create_vector_arena(sizeof(int), &arena); 
-    
-    for (int i = 0; i < 25; i++) {
-        int x = i; 
-        push_back(&vec, &x);    
-    }
-
-    print_vec(&vec);
-
-    
+    string_t str = string_literal("hello world", &arena);
+    printstr(&str, 0);
 
     release_arena(&arena);
     return 0;

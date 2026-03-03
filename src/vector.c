@@ -1,32 +1,15 @@
 #include "vector.h"
 
-vector_t create_vector(size_t element_size){
-    //start with 10 elements
-    vector_t vec;
-    vec.array = malloc(10 * element_size);
-
-    if (!vec.array){
-        fprintf(stderr, "Failed to allocate memory for the array\n");
-        vec.size = 0;
-        vec.capacity = 0;
-        
-        //returns zeroed out array in case of error
-        return vec;
-    }
-
-    vec.size = 0;
-    vec.capacity = 10;
-    vec.element_size = element_size;
-    vec.using_allocator = 0;
-
-    return vec;
-}
-
-vector_t create_vector_arena(size_t element_size, arena_t* allocator){
+vector_t create_vector(size_t element_size, arena_t* allocator){
     //start with 10 elements
     vector_t vec;
     vec.allocator = allocator;
-    vec.array = reserve(10 * element_size, vec.allocator);
+
+    if (vec.allocator) {
+        vec.array = reserve(10 * element_size, vec.allocator);
+    } else {
+        vec.array = malloc(10 * element_size);
+    }
 
     if (!vec.array){
         fprintf(stderr, "Failed to allocate memory for the array\n");
@@ -40,17 +23,16 @@ vector_t create_vector_arena(size_t element_size, arena_t* allocator){
     vec.size = 0;
     vec.capacity = 10;
     vec.element_size = element_size;
-    vec.using_allocator = 1;
 
     return vec;
 }
 
-vector_iterator_t* iterator(vector_t* vec){
-    return create_iterator(vec); 
+vector_iterator_t* iterator(vector_t* vec, arena_t* allocator) {
+    return create_iterator(vec, allocator); 
 }
 
-void vector_reserve(vector_t* vec, int new_capacity){
-    if (vec->using_allocator) {
+void vector_reserve(vector_t* vec, int new_capacity) {
+    if (vec->allocator) {
         void* new_vec = reserve(vec->element_size * new_capacity, vec->allocator);
         memcpy(new_vec, vec->array, vec->element_size * vec->size);
         release(vec->array, vec->allocator);
@@ -68,11 +50,11 @@ void vector_reserve(vector_t* vec, int new_capacity){
     vec->capacity = new_capacity;
 }
 
-int vector_size(const vector_t* vec){
+int vector_size(const vector_t* vec) {
     return vec->size;
 }
 
-void push_back(vector_t* vec, void* element){
+void push_back(vector_t* vec, void* element) {
     // if the array is full then double its capacity  
     if (vector_size(vec) == vec->capacity){
         vector_reserve(vec, vec->capacity * 2);
@@ -88,14 +70,13 @@ void* pop_back(vector_t* vec){
         return NULL;
     } 
 
-    void* element = (char*)vec->array + vec->size * vec->element_size;
-    vec->size--;
-    
     //if the size of the vector drops to 25% of its capacity then halve its capacity
-    if (vector_size(vec) * 4 <= vec->capacity){
+    if ((vector_size(vec) - 1) * 4 <= vec->capacity){
         vector_reserve(vec, (int)(vec->capacity / 2));
     }
 
+    vec->size--;
+    void* element = (char*)vec->array + vec->size * vec->element_size;
 
     return element;
 }
@@ -261,8 +242,15 @@ void* data(const vector_t* vec){
 
 
 
-vector_iterator_t* create_iterator(const vector_t* vec){
-    vector_iterator_t* itr = malloc(sizeof(*itr));
+vector_iterator_t* create_iterator(const vector_t* vec, arena_t* allocator){
+    vector_iterator_t* itr;
+
+    if (allocator) {
+        itr = reserve(sizeof(vector_iterator_t*), allocator);
+    } else {
+        itr = malloc(sizeof(*itr));
+    }
+
     itr->current = vec->array;
     itr->end = vec->array + vector_size(vec) * vec->element_size;
     itr->element_size = vec->element_size;
