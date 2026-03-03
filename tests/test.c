@@ -1,18 +1,25 @@
-#include "string_t.h"
+#include "vector.h"
 #include "arena.h"
 #include <stdlib.h>
 
+void print_vec(vector_t* vec) {
+    for (int i = 0; i < vec->size; i++) {
+        printf("%d\n", *(int*)get(vec, i));
+    }
+}
 
 int main(){
     arena_t arena = create_arena(PAGE_SIZE);
-    string_t str = string_literal_arena("hello world", &arena);
-    string_t src = string_literal_arena("Whats up", &arena);
+    vector_t vec = create_vector_arena(sizeof(int), &arena); 
     
-    printstr(&str, 0);
-    printstr(&src, 0);
+    for (int i = 0; i < 25; i++) {
+        int x = i; 
+        push_back(&vec, &x);    
+    }
 
-    free_string(&str);
-    free_string(&src);
+    print_vec(&vec);
+
+    
 
     release_arena(&arena);
     return 0;

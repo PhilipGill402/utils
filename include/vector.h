@@ -5,8 +5,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "arena.h"
 
 typedef struct vector_t{
+    arena_t* allocator;
+    int using_allocator;
     void* array; 
     int size;
     int capacity;
@@ -21,6 +24,7 @@ typedef struct vector_iterator_t{
 
 //initializing and destroying
 vector_t create_vector(size_t element_size);
+vector_t create_vector_arena(size_t element_size, arena_t* allocator);
 void free_vector(vector_t* vec);
 
 

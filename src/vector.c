@@ -17,6 +17,30 @@ vector_t create_vector(size_t element_size){
     vec.size = 0;
     vec.capacity = 10;
     vec.element_size = element_size;
+    vec.using_allocator = 0;
+
+    return vec;
+}
+
+vector_t create_vector_arena(size_t element_size, arena_t* allocator){
+    //start with 10 elements
+    vector_t vec;
+    vec.allocator = allocator;
+    vec.array = reserve(10 * element_size, vec.allocator);
+
+    if (!vec.array){
+        fprintf(stderr, "Failed to allocate memory for the array\n");
+        vec.size = 0;
+        vec.capacity = 0;
+        
+        //returns zeroed out array in case of error
+        return vec;
+    }
+
+    vec.size = 0;
+    vec.capacity = 10;
+    vec.element_size = element_size;
+    vec.using_allocator = 1;
 
     return vec;
 }
@@ -26,15 +50,22 @@ vector_iterator_t* iterator(vector_t* vec){
 }
 
 void vector_reserve(vector_t* vec, int new_capacity){
-    void* ptr = realloc(vec->array, vec->element_size * new_capacity);
+    if (vec->using_allocator) {
+        void* new_vec = reserve(vec->element_size * new_capacity, vec->allocator);
+        memcpy(new_vec, vec->array, vec->element_size * vec->size);
+        release(vec->array, vec->allocator);
+        vec->array = new_vec;
+    } else {
+        void* ptr = realloc(vec->array, vec->element_size * new_capacity);
+        vec->array = ptr;
+    }
 
-    if (ptr == NULL){
+    if (vec->array == NULL){
         fprintf(stderr, "Reallocation failed\n");
         return;
     }
     
     vec->capacity = new_capacity;
-    vec->array = ptr;
 }
 
 int vector_size(const vector_t* vec){
