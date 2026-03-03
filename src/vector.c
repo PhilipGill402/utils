@@ -33,10 +33,7 @@ vector_iterator_t* iterator(vector_t* vec, arena_t* allocator) {
 
 void vector_reserve(vector_t* vec, int new_capacity) {
     if (vec->allocator) {
-        void* new_vec = reserve(vec->element_size * new_capacity, vec->allocator);
-        memcpy(new_vec, vec->array, vec->element_size * vec->size);
-        release(vec->array, vec->allocator);
-        vec->array = new_vec;
+        vec->array = move(vec->array, vec->element_size * new_capacity, vec->allocator); 
     } else {
         void* ptr = realloc(vec->array, vec->element_size * new_capacity);
         vec->array = ptr;

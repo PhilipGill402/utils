@@ -1,24 +1,41 @@
 #include "queue.h"
 
-queue_t create_queue(size_t element_size){
+queue_t create_queue(size_t element_size, arena_t* allocator){
     queue_t queue;
+    
+    queue.allocator = allocator;
     queue.size = 0;
     queue.capacity = 10;
     queue.head = 0;
     queue.rear = 0;
     queue.element_size = element_size;
-    queue.array = malloc(sizeof(void*) * 10);
+
+    if (queue.allocator) {
+        queue.array = reserve(sizeof(void*) * 10, queue.allocator);
+    } else {
+        queue.array = malloc(sizeof(void*) * 10);
+    }
 
     return queue;
 }
 
 void queue_release(queue_t* queue){
-    free(queue->array);
+    if (queue->allocator) {
+        release(queue->array, queue->allocator);
+    } else {
+        free(queue->array);
+    }
     queue->array = NULL;
 }
 
 int resize_queue(queue_t* queue, int new_capacity){
-    void* new_array = malloc(sizeof(void*) * new_capacity);
+    void* new_array;
+    if (queue->allocator) {
+        new_array = reserve(sizeof(void*) * new_capacity, queue->allocator);
+    } else {
+        new_array = malloc(sizeof(void*) * new_capacity);
+    }
+
     if (new_array == NULL){
         fprintf(stderr, "failed to allocate memory");
         return -1;
@@ -29,7 +46,12 @@ int resize_queue(queue_t* queue, int new_capacity){
         memcpy((char*)new_array + i * queue->element_size, (char*)queue->array + index * queue->element_size, queue->element_size);
     }
     
-    free(queue->array);
+    if (queue->allocator) {
+        release(queue->array, queue->allocator); 
+    } else {
+        free(queue->array);
+    }
+
     queue->array = new_array;
     queue->head = 0;
     queue->rear = queue->size;

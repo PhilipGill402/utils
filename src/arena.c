@@ -129,10 +129,23 @@ void* reserve(size_t size, arena_t* arena){
     return NULL;
 }
 
-void release(void* ptr, arena_t* arena){
+void release(void* ptr, arena_t* arena) {
     block_t* block = (block_t*)((uint8_t*)ptr - sizeof(block_t));
     block->allocated = false;
     
     //combines the current block with the next if the next isn't allocated
     coalesce(block, arena);
 }
+
+void* move(void* ptr, size_t size, arena_t* arena) {
+    void* new_ptr = reserve(size, arena);
+    block_t* block = (block_t*)((uint8_t*)ptr - sizeof(block_t));
+    size_t old_size = block->size;
+    memcpy(new_ptr, ptr, old_size);
+    release(ptr, arena);
+    ptr = new_ptr;
+
+    return ptr;
+}
+
+

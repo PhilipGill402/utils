@@ -3,8 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct arena_t arena_t;
+void* reserve(size_t size, arena_t* arena);
+void release(void* ptr, arena_t* arena);
+void* move(void* ptr, size_t size, arena_t* arena);
 
 typedef struct stack_s {
+    arena_t* allocator; 
     int size;
     int capacity;
     int top;
@@ -12,7 +17,7 @@ typedef struct stack_s {
     void* stack; 
 } stack_s;
 
-stack_s create_stack(size_t element_size);
+stack_s create_stack(size_t element_size, arena_t* allocator);
 int stack_push(stack_s* stack, void* val);
 void* stack_pop(stack_s* stack);
 void* stack_top(const stack_s* stack);

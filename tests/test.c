@@ -1,5 +1,5 @@
 #include "vector.h"
-#include "string_t.h"
+#include "queue.h"
 #include "arena.h"
 #include <stdlib.h>
 
@@ -11,8 +11,16 @@ void print_vec(vector_t* vec) {
 
 int main(){
     arena_t arena = create_arena(PAGE_SIZE);
-    string_t str = string_literal("hello world", &arena);
-    printstr(&str, 0);
+    queue_t queue = create_queue(sizeof(int), &arena);
+
+    for (int i = 0; i < 25; i++) {
+        int x = i;
+        enqueue(&queue, &x);
+    }
+
+    for (int i = 0; i < 25; i++) {
+        printf("%d\n", *(int*)dequeue(&queue));
+    }
 
     release_arena(&arena);
     return 0;

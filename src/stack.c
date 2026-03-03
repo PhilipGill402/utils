@@ -1,15 +1,21 @@
 #include "stack.h"
 
 
-stack_s create_stack(size_t element_size){
+stack_s create_stack(size_t element_size, arena_t* allocator){
     stack_s stack;
+    stack.allocator = allocator;
     
+    if (stack.allocator) {
+        stack.stack = reserve(sizeof(void*) * 10, stack.allocator); // starts with a capacity of 10 values
+    } else {
+        stack.stack = malloc(sizeof(void*) * 10); // starts with a capacity of 10 values 
+    }
+
     stack.size = 0;
     stack.capacity = 10;
     stack.top = -1; // must start it at -1 to make it a 0 based index
     stack.element_size = element_size;
-    stack.stack = malloc(sizeof(void*) * 10); // starts with a capacity of 10 values 
-    
+        
     return stack;
 }
 
@@ -20,7 +26,11 @@ int stack_is_empty(const stack_s* stack){
 int stack_push(stack_s* stack, void* val){
     //checks if stack is full and if so, it doubles its capacity
     if (stack->size == stack->capacity){
-        stack->stack = realloc(stack->stack, sizeof(void*) * (stack->size * 2));
+        if (stack->allocator) {
+            stack->stack = move(stack->stack, sizeof(void*) * (stack->size * 2), stack->allocator);
+        } else {
+            stack->stack = realloc(stack->stack, sizeof(void*) * (stack->size * 2));
+        }
         
         if (!stack->stack){
             perror("realloc"); 

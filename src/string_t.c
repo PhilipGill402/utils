@@ -40,10 +40,7 @@ int string_len(string_t* string) {
 void string_copy(string_t* dst, string_t* src) {
     if (src->len > dst->capacity) {
         if (dst->allocator) {
-            char* new_str = reserve(sizeof(char) * 2 * src->len, dst->allocator);
-            memcpy(new_str, dst->str, dst->len);
-            release(dst->str, dst->allocator);
-            dst->str = new_str;
+            dst->str = move(dst->str, sizeof(char) * 2 * src->len, dst->allocator); 
         } else {
             dst->str = realloc(dst->str, sizeof(char) * 2 * src->len);
         }
@@ -66,10 +63,7 @@ void string_copy(string_t* dst, string_t* src) {
 void string_append_chr(string_t* string, char ch) {
     if (string->len + 1 > string->capacity) {
         if (string->allocator) {
-            char* new_str = reserve(sizeof(char) * 2 * (string->len + 1), string->allocator);
-            memcpy(new_str, string->str, string->len);
-            release(string->str, string->allocator);
-            string->str = new_str;
+            string->str = move(string->str, sizeof(char) * 2 * (string->len + 1), string->allocator); 
         } else {
             string->str = realloc(string->str, sizeof(char) * 2 * (string->len + 1));
         }
@@ -90,10 +84,7 @@ void string_append_chr(string_t* string, char ch) {
 void string_cat(string_t* dst, string_t* src) {
     if (dst->capacity < src->len + dst->len) {
         if (dst->allocator) {
-            char* new_str = reserve(sizeof(char) * 2 * (src->len + dst->len), dst->allocator);
-            memcpy(new_str, dst->str, dst->len);
-            release(dst->str, dst->allocator);
-            dst->str = new_str;
+            dst->str = move(dst->str, sizeof(char) * 2 * (src->len + dst->len), dst->allocator); 
         } else {
             dst->str = realloc(dst->str, sizeof(char) * 2 * (src->len + dst->len));
         }

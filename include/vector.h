@@ -9,6 +9,7 @@
 typedef struct arena_t arena_t;
 void* reserve(size_t size, arena_t* arena);
 void release(void* ptr, arena_t* arena);
+void* move(void* ptr, size_t size, arena_t* arena);
 
 typedef struct vector_t{
     arena_t* allocator;
