@@ -24,25 +24,68 @@ int string_len(string_t* string) {
 }
 
 void string_copy(string_t* dst, string_t* src) {
-    if (dst->len + src->len > dst->capacity) {
-        string.str = realloc(dst->str, sizeof(char) * 2 * (dst->len + src->len));
+    if (src->len > dst->capacity) {
+        dst->str = realloc(dst->str, sizeof(char) * 2 * src->len);
         
-        if (!string.str) {
-            fprintf("realloc");
+        if (!dst->str) {
+            fprintf(stderr, "realloc");
             return;
         }
 
-        dst->capacity = 2 * (dst->len + src->len);
+        dst->capacity = 2 * src->len;
     } 
 
     for (int i = 0; i < src->len; i++) {
-        
+        dst->str[i] = src->str[i];
     }
+
+    dst->len = src->len;
 }
 
-void string_append_chr(string_t* string, char ch);
-void string_cat(string_t* dst, string_t* src);
-int string_compare(string_t* a, string_t* b);
+void string_append_chr(string_t* string, char ch) {
+    if (string->len + 1 > string->capacity) {
+        string->str = realloc(string->str, sizeof(char) * 2 * (string->len + 1));
+
+        if (!string->str) {
+            fprintf(stderr, "realloc");
+            return;
+        }
+
+        string->capacity = 2 * (string->len + 1);
+    }
+
+    string->str[string->len] = ch;
+    string->len++;
+}
+
+void string_cat(string_t* dst, string_t* src) {
+    if (dst->capacity < src->len + dst->len) {
+        dst->str = realloc(dst->str, sizeof(char) * 2 * (src->len + dst->len));
+
+        if (!dst->str) {
+            fprintf(stderr, "realloc");
+            return;
+        }
+
+        dst->capacity = 2 * (src->len + dst->len);
+    }
+    
+    for (int i = dst->len, j = 0; i < dst->len + src->len; i++, j++) {
+        dst->str[i] = src->str[j];
+    }
+
+    dst->len += src->len;
+}
+
+int string_compare(string_t* a, string_t* b) { 
+    for (int i = 0; i < a->len && i < b->len; i++) {
+        if (a->str[i] != b->str[i]) {
+            return a->str[i] - b->str[i];
+        }
+    } 
+
+    return 0;
+}
 
 void printstr(const string_t* str, int end) {
     for (int i = 0; i < str->len; i++) {
