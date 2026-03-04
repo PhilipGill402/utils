@@ -18,7 +18,7 @@ int main(){
         enqueue(&queue, &x);
     }
 
-    for (int i = 0; i < 25; i++) {
+    for (int j = 0; j < 25; j++) {
         printf("%d\n", *(int*)dequeue(&queue));
     }
 

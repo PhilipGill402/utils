@@ -1,8 +1,17 @@
 #include "bst.h"
 
-node_t* node_init(value_t element){
-    node_t* node = malloc(sizeof(node_t));
-    node->element = element;
+node_t* node_init(void* element, size_t element_size, arena_t* allocator){
+    node_t* node;
+    if (allocator) {
+        node = reserve(sizeof(node_t), allocator);
+        node->element = reserve(sizeof(void*), allocator);
+    } else {
+        node = malloc(sizeof(node_t));
+        node->element = malloc(sizeof(void*));
+    } 
+
+    
+    memcpy(node->element, element, element_size);
     node->left = NULL;
     node->right = NULL;
 
@@ -10,18 +19,20 @@ node_t* node_init(value_t element){
 }
 
 //pass NULL for no root
-bst_t bst_init(value_t* element, int (*comparator)(value_t, value_t)){
+bst_t bst_init(void* element, size_t element_size, arena_t* allocator, int (*comparator)(void*, void*)){
+    bst_t bst;
+    bst.allocator = allocator;
+    bst.element_size = element_size;
+    bst.comparator = comparator;
+    
     node_t* root;
-
     if (element == NULL){
         root = NULL; 
     } else {
-        root = node_init(*element);
+        root = node_init(element, element_size, bst.allocator);
     }
 
-    bst_t bst;
     bst.root = root;
-    bst.comparator = comparator;
     
     return bst;
 }
@@ -53,9 +64,9 @@ int bst_height(const bst_t* bst, const node_t* node){
     return (right_height > left_height ? right_height : left_height) + 1;
 }
 
-int bst_add(bst_t* bst, value_t element){
+int bst_add(bst_t* bst, void* element){
     if (bst->root == NULL){
-        bst->root = node_init(element);
+        bst->root = node_init(element, bst->element_size, bst->allocator);
 
         return 1;
     } 
@@ -66,19 +77,21 @@ int bst_add(bst_t* bst, value_t element){
         if (bst->comparator(element, current->element) > 0){
             //if the element is greater than the current node
             if (current->right == NULL){
-                current->right = node_init(element);
+                current->right = node_init(element, bst->element_size, bst->allocator);
                 break;
             }
             current = current->right;
         } else if (bst->comparator(element, current->element) < 0){
             //if the element is less than the current node
             if (current->left == NULL){
-                current->left = node_init(element);
+                current->left = node_init(element, bst->element_size, bst->allocator);
                 break;
             }
             current = current->left;
         } else {
             //if the elements are equal
+            printf("%d\n", *(int*)element);
+            printf("%d\n", *(int*)current->element);
             return -1;
         }
     }
@@ -87,7 +100,7 @@ int bst_add(bst_t* bst, value_t element){
 }
 
 
-int bst_remove(bst_t* bst, value_t element){
+int bst_remove(bst_t* bst, void* element){
     node_t* current = bst->root;
     node_t* prev = NULL;
 
@@ -180,9 +193,8 @@ int bst_remove(bst_t* bst, value_t element){
     return 1;
 }
 
-node_t* bst_find(const bst_t* bst, value_t element){
+node_t* bst_find(const bst_t* bst, void* element){
     node_t* current = bst->root;
-
     while (current != NULL && bst->comparator(current->element, element) != 0){
         if (bst->comparator(current->element, element) > 0){
             current = current->left;
@@ -195,7 +207,7 @@ node_t* bst_find(const bst_t* bst, value_t element){
 
 }
 
-int bst_contains(const bst_t* bst, value_t element){
+int bst_contains(const bst_t* bst, void* element){
     return bst_find(bst, element) != NULL;
 }
 
@@ -230,7 +242,7 @@ int bst_count(const bst_t* bst, const node_t* node){
     return right_count + left_count + 1;
 }
 
-void bst_map_helper(node_t* node, void (*func)(value_t*)){
+void bst_map_helper(node_t* node, void (*func)(void*)){
     if (node == NULL){
         return;
     } 
@@ -241,12 +253,12 @@ void bst_map_helper(node_t* node, void (*func)(value_t*)){
 
 }
 
-void bst_map(const bst_t* bst, void (*func)(value_t*)){
+void bst_map(const bst_t* bst, void (*func)(void*)){
     node_t* node = bst->root;
     bst_map_helper(node, func);
 }
 
-int bst_compare_helper(node_t* node_a, node_t* node_b, int (*comparator)(value_t, value_t)){
+int bst_compare_helper(node_t* node_a, node_t* node_b, int (*comparator)(void*, void*)){
     if (node_a == NULL && node_b == NULL){
         return 1;
     }
@@ -270,7 +282,7 @@ int bst_compare_helper(node_t* node_a, node_t* node_b, int (*comparator)(value_t
     return 1;
 }
 
-int bst_compare(const bst_t* bst_a, const bst_t* bst_b, int (*comparator)(value_t, value_t)){
+int bst_compare(const bst_t* bst_a, const bst_t* bst_b, int (*comparator)(void*, void*)){
     //if no comparator is given, then a comparator from one of the bsts 
     if (comparator == NULL){
         if (bst_a->comparator != NULL){
@@ -293,8 +305,17 @@ int bst_compare(const bst_t* bst_a, const bst_t* bst_b, int (*comparator)(value_
 }
 
 node_t** bst_level_order(const bst_t* bst){
-    node_t** queue = malloc(sizeof(node_t*) * bst_count(bst, bst->root));
-    node_t** result = malloc(sizeof(node_t*) * bst_count(bst, bst->root));
+    node_t** queue;
+    node_t** result;
+    
+    if (bst->allocator) {
+        queue = reserve(sizeof(node_t*) * bst_count(bst, bst->root), bst->allocator);
+        result = reserve(sizeof(node_t*) * bst_count(bst, bst->root), bst->allocator);
+    } else {
+        queue = malloc(sizeof(node_t*) * bst_count(bst, bst->root));
+        result = malloc(sizeof(node_t*) * bst_count(bst, bst->root));
+    }
+    
     int queue_size = 0;
     int queue_head = 0;
     int result_size = 0;
@@ -338,12 +359,12 @@ node_t** bst_level_order(const bst_t* bst){
 }
 
 bst_t bst_copy(const bst_t* bst){
-    bst_t new_bst = bst_init(NULL, bst->comparator);
+    bst_t new_bst = bst_init(NULL, bst->element_size, bst->allocator, bst->comparator);
     node_t** queue = bst_level_order(bst);
     int queue_len = bst_count(bst, bst->root);
     
     for (int i = 0; i < queue_len; i++){
-        value_t val = queue[i]->element;
+        void* val = queue[i]->element;
         bst_add(&new_bst, val);
     }
      
@@ -351,6 +372,7 @@ bst_t bst_copy(const bst_t* bst){
     return new_bst;
 }
 
+/*
 void print_inorder_helper(node_t* node, int* first){
     if (node == NULL){
         return;
@@ -423,3 +445,4 @@ void print_preorder(const bst_t* bst){
     print_preorder_helper(bst->root, &first);
     printf("]\n");
 }
+*/
