@@ -43,9 +43,7 @@ void bst_map(const bst_t* bst, void (*func)(void*));
 int bst_compare(const bst_t* bst_a, const bst_t* bst_b, int (*comparator)(void*, void*));
 bst_t bst_copy(const bst_t* bst);
 
-/*
 //printing
-void print_inorder(const bst_t* bst);
-void print_postorder(const bst_t* bst);
-void print_preorder(const bst_t* bst);
-*/
+void print_inorder(const bst_t* bst, void (*print_element)(void*));
+void print_postorder(const bst_t* bst, void (*print_element)(void*));
+void print_preorder(const bst_t* bst, void (*print_element)(void*));

@@ -372,55 +372,54 @@ bst_t bst_copy(const bst_t* bst){
     return new_bst;
 }
 
-/*
-void print_inorder_helper(node_t* node, int* first){
+void print_inorder_helper(node_t* node, int* first, void (*print_element)(void*)){
     if (node == NULL){
         return;
     }
 
-    print_inorder_helper(node->left, first);
+    print_inorder_helper(node->left, first, print_element);
 
     if (*first == 0){
         printf(", ");
     }
-    print_value(node->element); 
+    print_element(node->element); 
     *first = 0;
 
-    print_inorder_helper(node->right, first);
+    print_inorder_helper(node->right, first, print_element);
 }
 
-void print_inorder(const bst_t* bst){
+void print_inorder(const bst_t* bst, void (*print_element)(void*)){
     printf("[");
     int first = 1;
-    print_inorder_helper(bst->root, &first);
+    print_inorder_helper(bst->root, &first, print_element);
     printf("]\n");    
 }
 
-void print_postorder_helper(node_t* node, int* first){
+void print_postorder_helper(node_t* node, int* first, void (*print_element)(void*)){
     if (node == NULL){
         return;
     }
 
-    print_postorder_helper(node->left, first);
+    print_postorder_helper(node->left, first, print_element);
     
-    print_postorder_helper(node->right, first);
+    print_postorder_helper(node->right, first, print_element);
     
     if (*first == 0){
         printf(", ");
     }
     
-    print_value(node->element); 
+    print_element(node->element); 
     *first = 0;
 }
 
-void print_postorder(const bst_t* bst){
+void print_postorder(const bst_t* bst, void (*print_element)(void*)){
     printf("[");
     int first = 1;
-    print_postorder_helper(bst->root, &first);
+    print_postorder_helper(bst->root, &first, print_element);
     printf("]\n");
 }
 
-void print_preorder_helper(node_t* node, int* first){
+void print_preorder_helper(node_t* node, int* first, void (*print_element)(void*)){
     if (node == NULL){
         return;
     }
@@ -429,20 +428,20 @@ void print_preorder_helper(node_t* node, int* first){
         printf(", ");
     }
     
-    print_value(node->element); 
+    print_element(node->element); 
     *first = 0;
 
-    print_preorder_helper(node->left, first);
+    print_preorder_helper(node->left, first, print_element);
     
-    print_preorder_helper(node->right, first);
+    print_preorder_helper(node->right, first, print_element);
     
     
 }
 
-void print_preorder(const bst_t* bst){
+void print_preorder(const bst_t* bst, void (*print_element)(void*)){
     printf("[");
     int first = 1;
-    print_preorder_helper(bst->root, &first);
+    print_preorder_helper(bst->root, &first, print_element);
     printf("]\n");
 }
-*/
+

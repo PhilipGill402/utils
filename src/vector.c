@@ -94,6 +94,18 @@ bool empty(const vector_t* vec){
     return vector_size(vec) == 0;
 }
 
+void print_vector(const vector_t* vec, void (*print_element)(void*)) {
+    printf("<"); 
+    for (int i = 0; i < vector_size(vec); i++) {
+        print_element(get(vec, i));
+        
+        if (i != vector_size(vec) - 1) {
+            printf(", ");
+        }
+    }
+    printf(">\n");
+}
+
 void* get(const vector_t* vec, int index){
     if (index > vector_size(vec)){
         fprintf(stderr, "'index' is out of the range of the vector");

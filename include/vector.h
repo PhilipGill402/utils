@@ -61,5 +61,6 @@ void* next(vector_iterator_t* itr);
 
 //miscellanenous
 bool empty(const vector_t* vec);
+void print_vector(const vector_t* vec, void (*print_element)(void*));
 
 #endif // !UTILS_VECTOR_H_
