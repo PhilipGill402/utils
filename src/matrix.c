@@ -4,13 +4,14 @@ matrix_t matrix_init(int rows, int cols){
     matrix_t matrix;
     matrix.rows = rows;
     matrix.cols = cols;
+    matrix.determinant = NAN;
     
     if (rows == 0 || cols == 0){
         matrix.arr = NULL;
     } else{
         matrix.arr = malloc(sizeof(double) * rows * cols);
     }
-    
+
     return matrix;
 }
 
@@ -123,10 +124,121 @@ matrix_t matrix_mul(const matrix_t* matrix_a, const matrix_t* matrix_b){
     return new_matrix;
 }
 
-matrix_t matrix_determinant(const matrix_t* matrix);
+void swap_rows(matrix_t* matrix, int row_a, int row_b) {
+    int start_index_a = row_a * matrix->cols;
+    int end_index_a = start_index_a + matrix->cols;
+
+    double temp[matrix->cols];
+    
+    for (int i = start_index_a, idx = 0; i < end_index_a; i++, idx++) {
+        temp[idx] = matrix->arr[i];
+
+    }
+
+    int start_index_b = row_b * matrix->cols;
+    int end_index_b = start_index_b + matrix->cols;
+
+    for (int i = start_index_b, idx = 0; i < end_index_b; i++, idx++) {
+        matrix->arr[start_index_a+idx] = matrix->arr[start_index_b+idx];
+    }
+    
+    for (int i = start_index_b, idx = 0; i < end_index_b; i++, idx++) {
+        matrix->arr[i] = temp[idx];
+    }
+}
+
+void mul_row(matrix_t* matrix, int row, double scalar) {
+    int start_index = row * matrix->cols;
+    int end_index = start_index + matrix->cols;
+
+    for (int i = start_index; i < end_index; i++) {
+        matrix->arr[i] = scalar * matrix->arr[i];
+    }
+}
+
+void add_rows(matrix_t* matrix, int dst_row, int src_row, int scalar) {
+    int start_index_dst = dst_row * matrix->cols;
+    int end_index_dst = start_index_dst + matrix->cols;
+
+    int start_index_src = src_row * matrix->cols;
+    int end_index_src = start_index_src + matrix->cols;
+
+    for (int dst = start_index_dst, src = start_index_src; dst < end_index_dst; dst++, src++) {
+        matrix->arr[dst] += scalar * matrix->arr[src];
+    }
+}
+
+int is_zero(double x) {
+    double eps = 1e-12;
+    return fabs(x) <= eps;
+}
+
+matrix_t find_rref(matrix_t* matrix) {
+    matrix_t rref = matrix_copy(matrix);
+    double factor = 1.0f;
+    int is_invertible = 1;
+
+
+    for (int i = 0; i < matrix->rows; i++) {
+        double pivot = matrix_get(&rref, i, i);
+        
+        if (is_zero(pivot)) {
+            is_invertible = 0;
+            continue;
+        }
+
+        mul_row(&rref, i, 1/pivot);
+        factor *= 1/pivot;
+        
+
+        for (int j = 0; j < matrix->rows; j++) {
+            if (j == i) {
+                continue;
+            }
+            
+            double entry = matrix_get(&rref, j, i);
+            add_rows(&rref, j, i, -entry);
+        }
+    }
+    
+    // if the given matrix has not had its determinant calculated, then calculate it
+    if (isnan(matrix->determinant)) {
+        if (!is_invertible) {
+            //if a matrix is invertible then its determinant is 0
+            matrix->determinant = 0;
+        } else {
+            //since the matrix is the identity matrix, its determinant is the factor found 
+            matrix->determinant = factor;
+        }
+
+    }
+
+    return rref;
+}
+
+double matrix_determinant(matrix_t* matrix) {
+    if (isnan(matrix->determinant)) {
+        find_rref(matrix);
+    }
+
+    return matrix->determinant;
+} 
+
 matrix_t matrix_inverse(const matrix_t* matrix);
 matrix_t matrix_div(const matrix_t* matrix_a, const matrix_t* matrix_b);
-matrix_t matrix_transpose(const matrix_t* matrix);
+
+matrix_t matrix_transpose(const matrix_t* matrix) {
+    matrix_t new_matrix = matrix_init(matrix->cols, matrix->rows);
+
+    for (int col = 0; col < matrix->cols; col++) {
+        for (int row = 0; row < matrix->rows; row++) {
+            double entry = matrix_get(matrix, row, col);
+            matrix_set(&new_matrix, col, row, entry);
+        }
+    }
+
+    return new_matrix;
+}
 
 int matrix_equal(const matrix_t* a, const matrix_t* b, double tol);
 int matrix_is_square(const matrix_t* m);
@@ -155,6 +267,17 @@ void matrix_print(const matrix_t* matrix){
 }
 
 
-matrix_t matrix_copy(const matrix_t* matrix);
+matrix_t matrix_copy(const matrix_t* matrix) {
+    matrix_t new_matrix = matrix_init(matrix->rows, matrix->cols);
+
+    for (int row = 0; row < matrix->rows; row++) {
+        for (int col = 0; col < matrix->cols; col++) {
+            double entry = matrix_get(matrix, row, col);
+            matrix_set(&new_matrix, row, col, entry);
+        }
+    }
+
+    return new_matrix;
+}
 
 
