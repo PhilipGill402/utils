@@ -27,13 +27,12 @@ matrix_t matrix_scalar_mul(const matrix_t* matrix, double scalar);
 matrix_t matrix_mul(const matrix_t* matrix_a, const matrix_t* matrix_b);
 double matrix_determinant(matrix_t* matrix);
 matrix_t matrix_inverse(const matrix_t* matrix);
-matrix_t matrix_div(const matrix_t* matrix_a, const matrix_t* matrix_b);
 matrix_t matrix_transpose(const matrix_t* matrix);
 
 matrix_t find_rref(matrix_t* matrix);
 void swap_rows(matrix_t* matrix, int row_a, int row_b);
 void mul_row(matrix_t* matrix, int row, double scalar);
-void add_rows(matrix_t* matrix, int dst_row, int src_row, int scalar);
+void add_rows(matrix_t* matrix, int dst_row, int src_row, double scalar);
 
 //equality
 int matrix_equal(const matrix_t* a, const matrix_t* b, double tol);

@@ -23,14 +23,13 @@ void matrix_release(matrix_t* matrix){
 
 matrix_t matrix_identity(int dimension){
     matrix_t matrix = matrix_init(dimension, dimension);
-    int curr_col = 0; 
 
     for (int row = 0; row < dimension; row++){
         for (int col = 0; col < dimension; col++){
-            if (col == curr_col){
-                matrix_set(&matrix, row, col, 1);
-                curr_col++;
-                row++;
+            if (row == col){
+                matrix_set(&matrix, row, col, 1.0);
+            } else {
+                matrix_set(&matrix, row, col, 0.0);
             }
         }
     }
@@ -156,7 +155,7 @@ void mul_row(matrix_t* matrix, int row, double scalar) {
     }
 }
 
-void add_rows(matrix_t* matrix, int dst_row, int src_row, int scalar) {
+void add_rows(matrix_t* matrix, int dst_row, int src_row, double scalar) {
     int start_index_dst = dst_row * matrix->cols;
     int end_index_dst = start_index_dst + matrix->cols;
 
@@ -186,9 +185,9 @@ matrix_t find_rref(matrix_t* matrix) {
             is_invertible = 0;
             continue;
         }
-
+        
         mul_row(&rref, i, 1/pivot);
-        factor *= 1/pivot;
+        factor *= pivot;
         
 
         for (int j = 0; j < matrix->rows; j++) {
@@ -224,8 +223,47 @@ double matrix_determinant(matrix_t* matrix) {
     return matrix->determinant;
 } 
 
-matrix_t matrix_inverse(const matrix_t* matrix);
-matrix_t matrix_div(const matrix_t* matrix_a, const matrix_t* matrix_b);
+matrix_t matrix_inverse(const matrix_t* matrix) {
+    if (matrix->rows != matrix->cols) {
+        perror("matrix_invers: can't find inverse of non-square matrix");
+        return matrix_init(0,0);
+    } 
+
+    matrix_t rref = matrix_copy(matrix);
+    matrix_t inverse = matrix_identity(matrix->rows);
+    int is_invertible = 1;
+
+
+    for (int i = 0; i < matrix->rows; i++) {
+        double pivot = matrix_get(&rref, i, i);
+        
+        if (is_zero(pivot)) {
+            is_invertible = 0;
+            continue;
+        }
+
+        mul_row(&rref, i, 1/pivot);
+        mul_row(&inverse, i, 1/pivot);
+
+        for (int j = 0; j < matrix->rows; j++) {
+            if (j == i) {
+                continue;
+            }
+            
+            double entry = matrix_get(&rref, j, i);
+            add_rows(&rref, j, i, -entry);
+            add_rows(&inverse, j, i, -entry);
+        }
+    }
+    
+    matrix_release(&rref);
+    // returns a zeroed out matrix if the inverse doesn't exist
+    if (!is_invertible) {
+        return matrix_init(matrix->rows, matrix->cols);
+    }
+        
+    return inverse;
+}
 
 matrix_t matrix_transpose(const matrix_t* matrix) {
     matrix_t new_matrix = matrix_init(matrix->cols, matrix->rows);
@@ -240,10 +278,53 @@ matrix_t matrix_transpose(const matrix_t* matrix) {
     return new_matrix;
 }
 
-int matrix_equal(const matrix_t* a, const matrix_t* b, double tol);
-int matrix_is_square(const matrix_t* m);
-int matrix_is_symmetric(const matrix_t* m, double tol);
-int matrix_is_identity(const matrix_t* m, double tol);
+int is_equal(double a, double b, double tol) {
+    return fabs(a - b) <= tol;
+}
+
+int matrix_equal(const matrix_t* a, const matrix_t* b, double tol) {
+    if ((a->rows != b->rows) || (a->cols != b->cols)) {
+        return 0;
+    }
+
+    for (int col = 0; col < a->cols; col++) {
+        for (int row = 0; row < a->rows; row++) {
+            double entry_a = matrix_get(a, row, col);
+            double entry_b = matrix_get(b, row, col);
+
+            if (!is_equal(entry_a, entry_b, tol)) {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+
+int matrix_is_square(const matrix_t* m) {
+    return m->rows == m->cols;
+}
+
+int matrix_is_symmetric(const matrix_t* m, double tol) {
+    matrix_t transpose = matrix_transpose(m);
+    int ret = matrix_equal(m, &transpose, tol);
+    matrix_release(&transpose);
+
+    return ret;
+}
+
+int matrix_is_identity(const matrix_t* m, double tol) {
+    if (m->cols != m->rows) {
+        return 0;
+    }
+
+    matrix_t identity = matrix_identity(m->cols);
+    int ret = matrix_equal(&identity, m, tol);
+    matrix_release(&identity); 
+
+    return ret;
+}
 
 void matrix_print(const matrix_t* matrix){
     for (int row = 0; row < matrix->rows; row++){
