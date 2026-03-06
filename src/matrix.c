@@ -123,6 +123,28 @@ matrix_t matrix_mul(const matrix_t* matrix_a, const matrix_t* matrix_b){
     return new_matrix;
 }
 
+matrix_t matrix_pow(const matrix_t* matrix, int pow) {
+    if (!matrix_is_square(matrix)) {
+        perror("matrix_pow: can't raise a non-square matrix to a power");
+        return matrix_init(0,0);
+    } 
+    
+    matrix_t copy = matrix_copy(matrix);
+    matrix_t res = matrix_identity(matrix->rows);
+    
+    while (pow > 0) {
+        if (pow % 2 == 1) {
+            res = matrix_mul(&res, &copy);
+        }
+
+        copy = matrix_mul(&copy, &copy);
+        pow >>= 1;
+    }
+    
+    matrix_release(&copy);
+    return res;
+}
+
 void swap_rows(matrix_t* matrix, int row_a, int row_b) {
     int start_index_a = row_a * matrix->cols;
     int end_index_a = start_index_a + matrix->cols;

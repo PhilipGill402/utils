@@ -25,6 +25,7 @@ matrix_t matrix_add(const matrix_t* matrix_a, const matrix_t* matrix_b);
 matrix_t matrix_sub(const matrix_t* matrix_a, const matrix_t* matrix_b);
 matrix_t matrix_scalar_mul(const matrix_t* matrix, double scalar);
 matrix_t matrix_mul(const matrix_t* matrix_a, const matrix_t* matrix_b);
+matrix_t matrix_pow(const matrix_t* matrix, int pow);
 double matrix_determinant(matrix_t* matrix);
 matrix_t matrix_inverse(const matrix_t* matrix);
 matrix_t matrix_transpose(const matrix_t* matrix);

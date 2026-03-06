@@ -38,5 +38,10 @@ int main(){
 
     printf("%d\n", matrix_is_symmetric(&rref, 1e-12));
 
+    matrix_t pow = matrix_pow(&matrix_a, 3);
+
+    matrix_print(&pow);
+    printf("\n\n");
+
     return 0;
 }
