@@ -6,9 +6,9 @@ stack_s create_stack(size_t element_size, arena_t* allocator){
     stack.allocator = allocator;
     
     if (stack.allocator) {
-        stack.stack = reserve(sizeof(void*) * 10, stack.allocator); // starts with a capacity of 10 values
+        stack.stack = reserve(element_size * 10, stack.allocator); // starts with a capacity of 10 values
     } else {
-        stack.stack = malloc(sizeof(void*) * 10); // starts with a capacity of 10 values 
+        stack.stack = malloc(element_size * 10); // starts with a capacity of 10 values 
     }
 
     stack.size = 0;
