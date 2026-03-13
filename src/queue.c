@@ -11,9 +11,9 @@ queue_t create_queue(size_t element_size, arena_t* allocator){
     queue.element_size = element_size;
 
     if (queue.allocator) {
-        queue.array = reserve(sizeof(void*) * 10, queue.allocator);
+        queue.array = reserve(element_size * 10, queue.allocator);
     } else {
-        queue.array = malloc(sizeof(void*) * 10);
+        queue.array = malloc(element_size * 10);
     }
 
     return queue;
@@ -31,9 +31,9 @@ void queue_release(queue_t* queue){
 int resize_queue(queue_t* queue, int new_capacity){
     void* new_array;
     if (queue->allocator) {
-        new_array = reserve(sizeof(void*) * new_capacity, queue->allocator);
+        new_array = reserve(queue->element_size * new_capacity, queue->allocator);
     } else {
-        new_array = malloc(sizeof(void*) * new_capacity);
+        new_array = malloc(queue->element_size * new_capacity);
     }
 
     if (new_array == NULL){
